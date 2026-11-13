@@ -1,12 +1,14 @@
+import io
 import os
 import random
 import requests
+from PIL import Image
 
 # Secrets from GitHub
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL = os.environ["CHANNEL"]  # @wallpapersxxxx
 
-# סגנונות ל-AI (נקיים לחלוטין מטקסט, מים ופרסומות, באיכות גבוהה במיוחד)
+# סגנונות איכותיים ונקיים ל-AI (בלי טקסט ובלי מים)
 PROMPTS = [
     "cyberpunk futuristic city street at night, neon lights, highly detailed, vertical wallpaper, 8k, no text, no watermark, photorealistic",
     "serene nature landscape, misty pine forest, cinematic dramatic lighting, vertical wallpaper, 4k, no text, no watermark",
@@ -20,23 +22,25 @@ PROMPTS = [
 
 def generate_ai_image():
     prompt = random.choice(PROMPTS)
-    # Pollinations - free AI image
-    url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(prompt)}?width=1080&height=1920&nologo=true"
+    # נבקש רזולוציה קצת יותר גבוהה כדי שיישאר חד גם אחרי החיתוך
+    url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(prompt)}?width=1080&height=2000&nologo=true"
     response = requests.get(url, timeout=60)
     response.raise_for_status()
-    return response.content
-
-def get_random_local_image():
-    folders = [".", "wallpapers"]
-    images = []
-    for folder in folders:
-        if os.path.exists(folder):
-            for f in os.listdir(folder):
-                if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
-                    images.append(os.path.join(folder, f))
-    if not images:
-        return None
-    return random.choice(images)
+    
+    # פתיחת התמונה וחתך החלק התחתון (שבו בדרך כלל תקוע הלוגו - כ-60 פיקסלים מלמטה)
+    img = Image.open(io.BytesIO(response.content))
+    width, height = img.getbands() and img.size # רוחב וגובה
+    
+    # חיתוך: משאירים את כל הרוחב, וחתכים 60 פיקסלים מלמטה
+    crop_height = height - 70  
+    cropped_img = img.crop((0, 0, width, crop_height))
+    
+    # שמירת התמונה החתוכה לתוך BytesIO כדי לשלוח לטלגרם
+    output = io.BytesIO()
+    cropped_img.save(output, format="JPEG", quality=95)
+    output.seek(0)
+    
+    return output.read()
 
 def send_telegram_document(chat_id, file_data_or_path, filename, caption, is_file_path=False):
     """שליחת מסמך (ללא דחיסה) ישירות דרך ה-API של טלגרם"""
@@ -56,36 +60,19 @@ def send_telegram_document(chat_id, file_data_or_path, filename, caption, is_fil
     return response.json()
 
 def main():
-    # 1. תמונה מ-AI
     try:
         ai_image = generate_ai_image()
         send_telegram_document(
             chat_id=CHANNEL,
             file_data_or_path=ai_image,
-            filename="ai_wallpaper.jpg",
-            caption="AI Wallpaper ✨ #wallpaper",
+            filename="wallpaper.jpg",
+            caption="✨ Wallpaper #wallpaper",
             is_file_path=False
         )
-        print("AI image sent successfully")
+        print("AI image sent successfully (watermark cropped out)")
     except Exception as e:
         print("AI error:", e)
 
-    # 2. תמונה מהמאגר (אופציונלי - אם יש קבצים מקומיים)
-    local_path = get_random_local_image()
-    if local_path:
-        try:
-            send_telegram_document(
-                chat_id=CHANNEL,
-                file_data_or_path=local_path,
-                filename=os.path.basename(local_path),
-                caption="From the collection 🔥 #wallpaper",
-                is_file_path=True
-            )
-            print("Local image sent:", local_path)
-        except Exception as e:
-            print("Local image error:", e)
-    else:
-        print("No local images found, skipping local image.")
-
 if __name__ == "__main__":
     main()
+
