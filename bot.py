@@ -6,16 +6,16 @@ import requests
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL = os.environ["CHANNEL"]  # @wallpapersxxxx
 
-# סגנונות ל-AI
+# סגנונות ל-AI (נקיים לחלוטין מטקסט, מים ופרסומות, באיכות גבוהה במיוחד)
 PROMPTS = [
-    "dark aesthetic wallpaper, high quality, 4k, phone wallpaper",
-    "cyberpunk city night, neon lights, ultra detailed, vertical",
-    "minimalist nature landscape, misty mountains, calm, 4k",
-    "abstract dark art, geometric, elegant, phone wallpaper",
-    "wild animal close up, tiger or leopard, dramatic lighting, vertical",
-    "galaxy space, stars, nebula, dark background, 4k wallpaper",
-    "japanese aesthetic, cherry blossoms night, vertical wallpaper",
-    "luxury car dark mood, cinematic lighting, vertical",
+    "cyberpunk futuristic city street at night, neon lights, highly detailed, vertical wallpaper, 8k, no text, no watermark, photorealistic",
+    "serene nature landscape, misty pine forest, cinematic dramatic lighting, vertical wallpaper, 4k, no text, no watermark",
+    "abstract dark minimalist art, geometric futuristic design, elegant deep colors, phone wallpaper, 4k, no text, no watermark",
+    "majestic wild animal close up, fierce tiger, dramatic studio lighting, vertical, ultra detailed, no text, no watermark",
+    "deep space galaxy, vibrant nebula, cosmic dust, stars, dark background, 4k mobile wallpaper, no text, no watermark",
+    "japanese aesthetic, traditional pagoda under cherry blossoms at night, glowing lanterns, vertical wallpaper, 4k, no text, no watermark",
+    "luxury futuristic supercar, dark cinematic mood, neon reflections, vertical wallpaper, 4k, no text, no watermark",
+    "sci-fi futuristic portal, glowing energy beam, dark atmospheric background, vertical wallpaper, 8k, no text, no watermark"
 ]
 
 def generate_ai_image():
