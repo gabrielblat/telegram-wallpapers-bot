@@ -2,8 +2,12 @@ name: Run Wallpaper Bot
 
 on:
   schedule:
-    - cron: '0 10 * * *' # יריץ את הבוט כל יום בשעה 10:00 בבוקר (UTC)
-  workflow_dispatch: # מאפשר לך להריץ ידנית מתי שתרצה
+    - cron: '0 7 * * *' # שעה 07:00 UTC שזה בדיוק 09:00 בבוקר שעון ישראל
+  workflow_dispatch: # מאפשר להריץ ידנית מתי שתרצה
+
+# הגדרת הרשאת כתיבה כדי שהבוט יוכל לעדכן את קובץ ההיסטוריה ולעשות פוש
+permissions:
+  contents: write
 
 jobs:
   run:
@@ -19,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests
+          pip install requests Pillow
 
       - name: Run bot script
         env:
@@ -27,3 +31,4 @@ jobs:
           CHANNEL: ${{ secrets.CHANNEL }}
         run: |
           python bot.py
+
